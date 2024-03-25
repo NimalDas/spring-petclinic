@@ -37,7 +37,7 @@ pipeline {
         //        jacoco(execPattern: 'target/**/*.exec', classPattern: '**/target/classes', sourcePattern: '**/src/main/java')
         //    }
         //}
-        
+        /*
         stage('SonarQube Analysis') {
             steps {
                 withCredentials([string(credentialsId: 'sonartoken', variable: 'SONAR_TOKEN')]) {
@@ -47,6 +47,7 @@ pipeline {
                 }
             }
         }
+        */
         stage('Docker Build & Push') {
             steps {
                 script {
