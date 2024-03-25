@@ -8,7 +8,7 @@ pipeline {
         JFROG_REPO = 'your-jfrog-repo'
         CHECKSTYLE_REPORT = 'checkstyle-result.xml'
         JACOCO_REPORT = 'target/site/jacoco/jacoco.xml'
-        SONAR_URL = 'http://localhost:9000' // Adjust URL according to your SonarQube instance
+        SONAR_URL = 'http:localhost:9000' // Adjust URL according to your SonarQube instance
     }
 
     stages {
@@ -30,24 +30,24 @@ pipeline {
             }
         }
         
-        //stage('Unit Tests & Code Coverage') {
-        ///    steps {
-        //        sh "${MAVEN_HOME}/bin/mvn test jacoco:report"
-        //        junit allowEmptyResults: true, testResults: '**/surefire-reports/*.xml'
-        //        jacoco(execPattern: 'target/**/*.exec', classPattern: '**/target/classes', sourcePattern: '**/src/main/java')
-        //    }
-        //}
-        /*
+        stage('Unit Tests & Code Coverage') {
+            steps {
+                sh "${MAVEN_HOME}/bin/mvn test jacoco:report"
+                junit allowEmptyResults: true, testResults: '**/surefire-reports/*.xml'
+                jacoco(execPattern: 'target/**/*.exec', classPattern: '**/target/classes', sourcePattern: '**/src/main/java')
+            }
+        }
+        
         stage('SonarQube Analysis') {
             steps {
-                withCredentials([string(credentialsId: 'sonartoken', variable: 'SONAR_TOKEN')]) {
-                    withSonarQubeEnv('sonarqube') {
+                withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
+                    withSonarQubeEnv('sonarqube-server') {
                         sh "${MAVEN_HOME}/bin/mvn sonar:sonar -Dsonar.host.url=${SONAR_URL} -Dsonar.login=${SONAR_TOKEN}"
                     }
                 }
             }
         }
-        */
+        
         stage('Docker Build') {
             steps{
                 sh "docker build -t petclinic ."
