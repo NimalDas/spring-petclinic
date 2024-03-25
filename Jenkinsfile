@@ -83,7 +83,7 @@ pipeline {
         }
     }
 
-    steps {  // Define the softwareVersion function here
+    steps {  // Define the softwareVersion function here (correct indentation)
         def softwareVersion() {
             sh """
                 #!/bin/bash
