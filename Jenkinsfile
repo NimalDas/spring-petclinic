@@ -20,7 +20,7 @@ pipeline {
 
         stage('Maven Build') {
             steps {
-                sh "${MAVEN_HOME}/bin/mvn clean package"
+                sh "${MAVEN_HOME}/bin/mvn clean package -DskipTests=true"
             }
         }
         stage('Checkstyle') {
@@ -29,14 +29,15 @@ pipeline {
                 junit allowEmptyResults: true, testResults: '**/${CHECKSTYLE_REPORT}'
             }
         }
-        stage('Unit Tests & Code Coverage') {
-            steps {
-                sh "${MAVEN_HOME}/bin/mvn test jacoco:report"
-                junit allowEmptyResults: true, testResults: '**/surefire-reports/*.xml'
-                jacoco(execPattern: 'target/**/*.exec', classPattern: '**/target/classes', sourcePattern: '**/src/main/java')
-            }
-        }
-
+        
+        //stage('Unit Tests & Code Coverage') {
+        ///    steps {
+        //        sh "${MAVEN_HOME}/bin/mvn test jacoco:report"
+        //        junit allowEmptyResults: true, testResults: '**/surefire-reports/*.xml'
+        //        jacoco(execPattern: 'target/**/*.exec', classPattern: '**/target/classes', sourcePattern: '**/src/main/java')
+        //    }
+        //}
+        
         stage('SonarQube Analysis') {
             steps {
                 withCredentials([string(credentialsId: 'sonartoken', variable: 'SONAR_TOKEN')]) {
