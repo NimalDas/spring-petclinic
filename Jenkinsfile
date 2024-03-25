@@ -18,7 +18,7 @@ pipeline {
             }
         }
 
-        stage('Maven Build') {
+        stage('Compile') {
             steps {
                 sh "${MAVEN_HOME}/bin/mvn clean package -DskipTests=true"
             }
@@ -55,7 +55,7 @@ pipeline {
                         
                         sh "docker build -t petclinic ."
                         sh "docker tag petclinic1 ndadmin888/pet-clinic:latest"
-                        sh "docker push ndadmin888/pet-clinic123:latest"
+                        sh "docker push ndadmin888/pet-clinic:latest"
                     
                     }
                 }
