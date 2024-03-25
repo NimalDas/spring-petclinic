@@ -49,9 +49,15 @@ pipeline {
         }
         */
         stage('Docker Build & Push') {
-            steps {
-                script {
-                    docker.build("${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${env.BUILD_NUMBER}")
+            steps{
+                script{
+                   withDockerRegistry(credentialsId: 'dockerhub', toolName: 'docker') {
+                        
+                        sh "docker build -t petclinic ."
+                        sh "docker tag petclinic1 ndadmin888/pet-clinic:latest"
+                        sh "docker push ndadmin888/pet-clinic123:latest"
+                    
+                    }
                 }
             }
         }
