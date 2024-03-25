@@ -42,33 +42,22 @@ pipeline {
         }
 
         stage("Container") {
-            stage('build') {
-                steps {
+            steps {
+                stage('build') {
                     sh "docker image build -f Dockerfile -t ${projectName}:${env.BUILD_ID} ." // Build the container image
                 }
-            }
 
-            stage('tag') {
-                steps {
-                    parallel {
-                        listContainers: {
-                            sh "docker container ls -a" // List containers (optional for debugging)
-                        }
-                        listImages: {
-                            sh "docker image ls -a" // List images (optional for debugging)
-                        }
-                        tagBuildNumb: {
-                            sh "docker tag ${projectName}:${env.BUILD_ID} ndadmin888/${projectName}:${env.BUILD_ID}" // Tag image with build number
-                        }
-                        tagLatest: {
-                            sh "docker tag ${projectName}:${env.BUILD_ID} ndadmin888/${projectName}:latest" // Tag image with "latest"
-                        }
-                    }
+                stage('tag') {
+                    sh """
+                        docker container ls -a  # List containers (optional for debugging)
+                        docker image ls -a     # List images (optional for debugging)
+
+                        docker tag ${projectName}:${env.BUILD_ID} ndadmin888/${projectName}:${env.BUILD_ID}  # Tag image with build number
+                        docker tag ${projectName}:${env.BUILD_ID} ndadmin888/${projectName}:latest        # Tag image with "latest"
+                    """
                 }
-            }
 
-            stage('publish') {
-                steps {
+                stage('publish') {
                     withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'DOCKER_REGISTRY_PWD', usernameVariable: 'DOCKER_REGISTRY_USER')]) {
                         sh """
                             #!/bin/bash
@@ -83,12 +72,9 @@ pipeline {
                         """ // Login, push images, and logout
                     }
                 }
-            }
 
-            stage('clean') {
-                steps {
+                stage('clean') {
                     sh """
-                        #!/bin/bash
                         docker images ls
                         echo 'Deleting local images...'
 
@@ -97,7 +83,23 @@ pipeline {
                         docker images ls
                     """ // List, delete, and confirm deletion of local images (optional)
                 }
-            }
+            } // End of steps for "Container" stage
+        } // End of "Container" stage
+    }
+
+    // Optional: Define the softwareVersion function here (correct indentation)
+    steps {
+        def softwareVersion() {
+            sh """
+                #!/bin/bash
+                java -version
+                mvn -version
+                docker version
+                echo '\n'
+            """  // Print software versions (optional)
         }
+
+        // Call the softwareVersion() function here if you want to use it (optional)
+        // softwareVersion()
     }
 }
