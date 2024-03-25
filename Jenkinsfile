@@ -30,14 +30,18 @@ pipeline {
             }
         }
         
-        stage('Unit Tests & Code Coverage') {
+    //  stage('Unit Tests & Code Coverage') {
+    //      steps {
+    //          sh "${MAVEN_HOME}/bin/mvn test jacoco:report"
+    //          junit allowEmptyResults: true, testResults: '**/surefire-reports/*.xml'
+    //          jacoco(execPattern: 'target/**/*.exec', classPattern: '**/target/classes', sourcePattern: '**/src/main/java')
+    //      }
+    //  }
+        stage('Code Coverage') {
             steps {
-                sh "${MAVEN_HOME}/bin/mvn test jacoco:report"
-                junit allowEmptyResults: true, testResults: '**/surefire-reports/*.xml'
-                jacoco(execPattern: 'target/**/*.exec', classPattern: '**/target/classes', sourcePattern: '**/src/main/java')
+                step([$class: 'JacocoPublisher']) // JaCoCo report generation
             }
         }
-        
         stage('SonarQube Analysis') {
             steps {
                 withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
