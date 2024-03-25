@@ -83,13 +83,18 @@ pipeline {
         }
     }
 
-    def softwareVersion() {
-        sh """
-            #!/bin/bash
-            java -version
-            mvn -version
-            docker version
-            echo '\n'
-        """ // Print software versions (optional)
+    steps {  // Define the softwareVersion function here
+        def softwareVersion() {
+            sh """
+                #!/bin/bash
+                java -version
+                mvn -version
+                docker version
+                echo '\n'
+            """  // Print software versions (optional)
+        }
+
+        // Call the softwareVersion() function here if you want to use it (optional)
+        // softwareVersion()
     }
 }
