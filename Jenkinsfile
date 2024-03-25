@@ -1,106 +1,72 @@
-node {
-    projectName="mypetclinic";
-    dockerRegistryOrg="ndadmin888"
-    environment { 
+pipeline {
+    agent any
+    environment {
+        dockerRegistryOrg="ndadmin888"
+        MAVEN_HOME = tool 'maven'
+        CHECKSTYLE_REPORT = 'checkstyle-result.xml'
+        JACOCO_REPORT = 'target/site/jacoco/jacoco.xml'
         softwareVersion()
     }
-    stage('Code') {
-        stage('clean') {
-            sh """ #!/bin/bash
-                rm -rf spring-petclinic
-            """
+    stages {
+        stage('Clean') {
+            sh "rm -rf spring-petclinic"
         }
-        stage('clone') {
+        stage('Clone Github repository') {
             git branch: 'main', url: 'https://github.com/NimalDas/spring-petclinic.git'
-        } // stage: clone
-        stage('compile') {
-            sh """ #!/bin/bash
-                mvn clean install -DskipTests=true
-            """
-        } // stage: compile
-    } // stage: code
-    stage('Tests') {
-        parallel unitTest: {
-            stage ("unitTest") {
-                timeout(time: 10, unit: 'MINUTES') {
+        } 
+        stage('Compile') {
+            sh "${MAVEN_HOME}/bin/mvn clean package -DskipTests=true"
+        } 
+        stage('Checkstyle') {
+            sh "${MAVEN_HOME}/bin/mvn checkstyle:checkstyle"
+            junit allowEmptyResults: true, testResults: '**/${CHECKSTYLE_REPORT}'
+        } 
+        stage('Checkstyle') {
+            sh "${MAVEN_HOME}/bin/mvn test jacoco:report"
+            junit allowEmptyResults: true, testResults: '**/surefire-reports/*.xml'
+            jacoco(execPattern: 'target/**/*.exec', classPattern: '**/target/classes', sourcePattern: '**/src/main/java')
+        } 
+        stage ("Container") {
+            stage('build') {
+                sh "docker image build -f Dockerfile -t ${projectName}:${env.BUILD_ID} ."
+            } 
+            stage('tag') {
+                parallel listContainers: {
+                    sh "docker container ls -a"                    
+                }, listImages: {
+                    sh "docker image ls -a"
+                }, tagBuildNumb: {
+                        sh "docker tag ${projectName}:${env.BUILD_ID} ndadmin888/${projectName}:${env.BUILD_ID}"
+                }, tagLatest: {
+                    sh "docker tag ${projectName}:${env.BUILD_ID} ndadmin888/${projectName}:latest"
+                }
+            } 
+            stage('publish') {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'DOCKER_REGISTRY_PWD', usernameVariable: 'DOCKER_REGISTRY_USER')]) {
                     sh """ #!/bin/bash
-                        mvn test surefire-report:report
+                        docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PWD
+                        echo 'Login success...'
 
-                        echo 'surefire report generated in http://localhost:8080/job/${projectName}/${env.BUILD_ID}/execution/node/3/ws/target/site/surefire-report.html'
+                        docker push ndadmin888/${projectName}:${env.BUILD_ID}
+                        docker push ndadmin888/${projectName}:latest
+
+                        docker logout
+                        echo 'Logut...'
                     """
-                } // timeout
-            } // stage: unittest
-        }, checkstyle: {
-            stage ("checkStyle") {
-                timeout(time: 2, unit: 'MINUTES') {
-                    sh """ #!/bin/bash
-                        mvn validate
-                    """
-                } // timeout
-            } // stage: validate
-        }, codeCoverage: {
-            stage ("codeCoverage") {
-                timeout(time: 2, unit: 'MINUTES') {
-                    sh """ #!/bin/bash
-                        mvn jacoco:report
-                                    
-                        echo 'Jacoco report generated in http://localhost:8080/job/${projectName}/${env.BUILD_ID}/execution/node/3/ws/target/site/jacoco/index.html'
-                    """
-                } // timeout
-            } // stage: Jacoo
-        } // parallel
-    } // stage: tests
-    stage ("Container") {
-        stage('build') {
-            sh """ #!/bin/bash
-                docker image build -f Dockerfile -t ${projectName}:${env.BUILD_ID} .
-            """
-        } // stage: build
-        stage('tag') {
-            parallel listContainers: {
-                sh """ #!/bin/bash
-                    docker container ls -a
-                """
-            }, listImages: {
-                sh """ #!/bin/bash
-                    docker image ls -a
-                """
-            }, tagBuildNumb: {
-                    sh """ #!/bin/bash
-                        docker tag ${projectName}:${env.BUILD_ID} ndadmin888/${projectName}:${env.BUILD_ID}
-                    """
-            }, tagLatest: {
-                sh """ #!/bin/bash
-                    docker tag ${projectName}:${env.BUILD_ID} ndadmin888/${projectName}:latest
-                """
-            }
-        } // stage: tag
-        stage('publish') {
-            withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'DOCKER_REGISTRY_PWD', usernameVariable: 'DOCKER_REGISTRY_USER')]) {
-                sh """ #!/bin/bash
-                    docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PWD
-                    echo 'Login success...'
+                } 
+            } 
+            stage('clean') {
+                sh """ #!/bin/bash 
+                    docker images ls 
+                    echo 'Deleting local images...' 
 
-                    docker push krishnamanchikalapudi/${projectName}:${env.BUILD_ID}
-                    docker push krishnamanchikalapudi/${projectName}:latest
+                    docker rmi -f \$(docker images -aq)
 
-                    docker logout
-                    echo 'Logut...'
-                """
-            } // withCredentials: dockerhub
-        } // stage: push
-        stage('clean') {
-            sh """ #!/bin/bash 
-                docker images ls 
-                echo 'Deleting local images...' 
-
-                docker rmi -f \$(docker images -aq)
-
-                docker images ls 
-            """ 
-        } // stage: clean
-    } // stage: docker
-}
+                    docker images ls 
+                """ 
+            } 
+        } 
+    }
 def softwareVersion() {
     sh """ #!/bin/bash
         java -version
@@ -109,3 +75,5 @@ def softwareVersion() {
         echo '\n'
     """
 }
+} 
+    
