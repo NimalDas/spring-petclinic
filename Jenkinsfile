@@ -54,7 +54,7 @@ pipeline {
                    withDockerRegistry(credentialsId: 'dockerhub', toolName: 'docker') {
                         
                         sh "docker build -t petclinic ."
-                        sh "docker tag petclinic1 ndadmin888/pet-clinic:latest"
+                        sh "docker tag petclinic ndadmin888/pet-clinic:latest"
                         sh "docker push ndadmin888/pet-clinic:latest"
                     
                     }
