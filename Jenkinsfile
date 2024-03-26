@@ -3,6 +3,7 @@ pipeline {
     
     environment {
         MAVEN_HOME = tool 'maven'
+        IMAGE_NAME = 'spring-petclinic'
         DOCKER_REGISTRY = 'http:localhost:8082/artifactory'
         ARTIFACTORY_ACCESS_TOKEN = credentials('artifactory-token')
         CHECKSTYLE_REPORT = 'checkstyle-result.xml'
@@ -73,5 +74,14 @@ pipeline {
             }
         }
 
+        stage('Docker Push to JF Artifactory') {
+            steps {
+                script {
+                withDockerRegistry(credentialsId: 'artifactory-token', toolName: 'docker') {
+                    sh "docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:latest"
+                }
+                }
+            }
+        }
     }
 }
