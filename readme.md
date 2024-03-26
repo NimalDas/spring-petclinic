@@ -31,20 +31,20 @@ The Jenkinsfile uses several environment variables to configure the build proces
 
 **Pipeline Stages:**
 
-The pipeline is divided into several stages:
+The pipeline is divided into several stages, each performing a specific task in the build and deployment process:
 
-1. **Clone Git repository:** Clones the Spring Petclinic source code from a Git repository.
-2. **Clean:** Deletes any existing Spring Petclinic directory to ensure a clean build.
-3. **Checkstyle:** Runs Checkstyle code analysis to identify potential style violations.
-4. **SAST Scan with Snyk Code:** Performs a security scan using Snyk to detect vulnerabilities in the code. 
-5. **Compile:** Compiles the source code without running tests.
-6. **Unit Tests & Code Coverage:** Runs unit tests and generates a JaCoCo code coverage report. 
-7. **Code Coverage:** Uses the JaCoCo plugin to publish code coverage reports.
-8. **SonarQube Analysis:** Performs code quality analysis using SonarQube.
-9. **Docker Build:** Builds a Docker image for the Spring Petclinic application.
-10. **Docker Push:** Pushes the Docker image to a Docker registry (Docker Hub or JFrog Artifactory).
-11. **Upload to maven artifacts to JF Artifactory:** Uploads the generated JAR file to JFrog Artifactory.
-12. **Upload docker image to JF Artifactory:** Scans and pushes the Docker image to JFrog Artifactory.
+1. **Clone Git repository:** Downloads the latest codebase of the Spring Petclinic application from the specified Git repository.
+2. **Clean:** Removes any existing Spring Petclinic directory from the Jenkins workspace to ensure a clean build environment.
+3. **Checkstyle:** Runs Checkstyle, a static code analysis tool, to identify potential coding style violations in the project's source code. This helps maintain code consistency and readability.
+4. **SAST Scan with Snyk Code:** Performs a security scan using Snyk to detect vulnerabilities in the code. This helps identify and address potential security risks before deployment.
+5. **Compile:** Compiles the Spring Petclinic source code into a JAR (Java Archive) file using Maven, a build automation tool for Java projects. This stage doesn't run any tests.
+6. **Unit Tests & Code Coverage:** Executes the unit tests for the Spring Petclinic application using Maven. Additionally, it generates a JaCoCo code coverage report that shows which parts of the code are exercised by the tests. This helps ensure the quality and reliability of the application. 
+7. **Code Coverage:** Uses the JaCoCo plugin within Jenkins to publish the generated code coverage reports. This provides insights into the effectiveness of your unit tests.
+8. **SonarQube Analysis:** Performs a code quality analysis using SonarQube, a platform for continuous inspection and improvement of code. This stage is optional and requires a SonarQube server to be configured.
+9. **Docker Build:** Creates a Docker image for the Spring Petclinic application. This image can be used to package and deploy the application in a consistent and portable manner.
+10. **Upload to Dockerhub:** Pushes the newly built Docker image to a Docker registry, such as Docker Hub. This allows you to store and share the image for easy deployment.
+11. **Upload to maven artifacts to JF Artifactory:** Uploads the generated JAR file to JFrog Artifactory, a repository manager for storing and distributing software artifacts.
+12. **Upload docker image to JF Artifactory:** Scans and pushes the Docker image to JFrog Artifactory, providing a central location for managing Docker images.
 
 **Running the Pipeline:**
 

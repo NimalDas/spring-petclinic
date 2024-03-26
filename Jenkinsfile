@@ -74,7 +74,7 @@ pipeline {
                 sh "docker tag ${IMAGE_NAME} ${DOCKER_ID}/${IMAGE_NAME}:latest"  
             }
         }
-        stage('Docker Push') {
+        stage('Upload to Dockerhub') {
             steps{
                 script{
                    withDockerRegistry(credentialsId: 'dockerhub', toolName: 'docker') {
