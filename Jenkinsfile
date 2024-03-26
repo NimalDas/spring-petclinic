@@ -28,7 +28,8 @@ pipeline {
         stage('SAST Scan with Snyk Code') {
             steps {
                 script {
-                sh 'snyk code test --org ${ORG_ID} --project ${PROJECT_NAME} --report ${PROJECT_NAME} --fail-on-critical'  
+                    sh 'snyk auth ${SNYK_TOKEN}'
+                    sh 'snyk code test --org ${ORG_ID} --project ${PROJECT_NAME} --report ${PROJECT_NAME} --fail-on-critical'  
                 }
             }
         }
