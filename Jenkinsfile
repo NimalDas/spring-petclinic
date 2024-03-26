@@ -37,7 +37,7 @@ pipeline {
            steps {
                script {
                    sh 'snyk auth ${SNYK_TOKEN}'
-                   sh 'snyk code test --org=${SNYK_ORG_ID} --report --project-name=${PROJECT_NAME} --report --fail-on-critical'  
+                   sh 'snyk code test --org=${SNYK_ORG_ID} --report --project-name=${PROJECT_NAME} --fail-on-critical'  
                }
            }
        }
