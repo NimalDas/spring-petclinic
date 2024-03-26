@@ -5,7 +5,7 @@ pipeline {
         MAVEN_HOME = tool 'maven'
         DOCKER_REGISTRY = 'http:localhost:8082/artifactory'
         DOCKER_IMAGE = 'spring-petclinic'
-        JFROG_REPO = 'your-jfrog-repo'
+        ARTIFACTORY_ACCESS_TOKEN = credentials('artifactory-token')
         CHECKSTYLE_REPORT = 'checkstyle-result.xml'
         JACOCO_REPORT = 'target/site/jacoco/jacoco.xml'
         SONAR_URL = 'http:localhost:9000' // Adjust URL according to your SonarQube instance
@@ -83,44 +83,17 @@ pipeline {
     }
     */
     // New stage to upload binaries to JFrog Artifactory
-    stage('Upload Binaries to JFrog') {
-      steps {
-        rtServer (
-            id: 'artifactory',
-            url: 'http://localhost:8082/artifactory',
-                // If you're using username and password:
-            //username: 'user',
-            //password: 'password',
-                // If you're using Credentials ID:
-                credentialsId: 'jfrog-password',
-                // If Jenkins is configured to use an http proxy, you can bypass the proxy when using this Artifactory server:
-                bypassProxy: true,
-                // Configure the connection timeout (in seconds).
-                // The default value (if not configured) is 300 seconds: 
-                timeout: 300
-        )
-        rtUpload (
-            serverId: 'artifactory',
-            spec: '''{
-                "files": [
-                    {
-                    "pattern": "target/*jar*",
-                    "target": "libs-snapshot-local"
-                    }
-                ]
-            }''',
-
-            // Optional - Associate the uploaded files with the following custom build name and build number,
-            // as build artifacts.
-            // If not set, the files will be associated with the default build name and build number (i.e the 
-            // the Jenkins job name and number).
-            // buildName: 'holyFrog',
-            // buildNumber: '42',
-            // Optional - Only if this build is associated with a project in Artifactory, set the project key as follows.
-            // project: 'my-project-key'
-        )
-      }
-    }
+        stage('Upload to Artifactory') {
+            agent {
+                docker {
+                image 'releases-docker.jfrog.io/jfrog/jfrog-cli-v2:2.2.0' 
+                reuseNode true
+                }
+            }
+            steps {
+                sh 'jfrog rt upload --url http://localhost:8082/artifactory/ --access-token ${ARTIFACTORY_ACCESS_TOKEN} target/*.jar petclinic/'
+            }
+            }
 
     }
 }
