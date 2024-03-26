@@ -85,28 +85,40 @@ pipeline {
     // New stage to upload binaries to JFrog Artifactory
     stage('Upload Binaries to JFrog') {
       steps {
-        // Use JFrog CLI command to upload artifacts
-        sh """
-          jfrog rt u target/*.jar ${JFROG_REPO} \
-             --url=${DOCKER_REGISTRY} \
-             --user=${JFROG_USERNAME} \
-             --password=${JFROG_PASSWORD}
-        """
+        rtServer (
+            id: 'artifactory',
+            url: 'http://localhost:8082/artifactory',
+                // If you're using username and password:
+            //username: 'user',
+            //password: 'password',
+                // If you're using Credentials ID:
+                credentialsId: 'jfrog-password',
+                // If Jenkins is configured to use an http proxy, you can bypass the proxy when using this Artifactory server:
+                bypassProxy: true,
+                // Configure the connection timeout (in seconds).
+                // The default value (if not configured) is 300 seconds: 
+                timeout: 300
+        )
+        rtUpload (
+            serverId: 'artifactory',
+            spec: '''{
+                "files": [
+                    {
+                    "pattern": "target/*jar*",
+                    "target": "libs-snapshot-local"
+                    }
+                ]
+            }''',
 
-        // Replace placeholders with actual values:
-        // - path/to/your/artifacts: Path to your JAR files (e.g., target/*.jar)
-        // - DOCKER_REGISTRY: URL of your JFrog server
-        // - JPROG_USERNAME: Username for JFrog access
-        // - JPROG_PASSWORD: Password for JFrog access
-
-        // Handle upload result
-        /*script {
-            if (shExitCode == 0) {
-                echo 'Binaries uploaded successfully!'
-            } else {
-                error 'Failed to upload binaries!'
-            }
-         } */  
+            // Optional - Associate the uploaded files with the following custom build name and build number,
+            // as build artifacts.
+            // If not set, the files will be associated with the default build name and build number (i.e the 
+            // the Jenkins job name and number).
+            // buildName: 'holyFrog',
+            // buildNumber: '42',
+            // Optional - Only if this build is associated with a project in Artifactory, set the project key as follows.
+            // project: 'my-project-key'
+        )
       }
     }
 
