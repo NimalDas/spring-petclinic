@@ -8,7 +8,8 @@ pipeline {
         ARTIFACTORY_ACCESS_TOKEN = credentials('artifactory-token')
         CHECKSTYLE_REPORT = 'checkstyle-result.xml'
         JACOCO_REPORT = 'target/site/jacoco/jacoco.xml'
-        SONAR_URL = 'http:localhost:9000' // Adjust URL according to your SonarQube instance
+        SONAR_URL = 'http:localhost:9000'
+        SNYK_TOKEN = credentials('snyk-token')
     }
 
     stages {
@@ -23,6 +24,15 @@ pipeline {
                 junit allowEmptyResults: true, testResults: '**/${CHECKSTYLE_REPORT}'
             }
         }
+
+        stage('SAST Scan with Snyk Code') {
+            steps {
+                script {
+                sh 'snyk code test --org ${ORG_ID} --project ${PROJECT_NAME} --report ${PROJECT_NAME} --fail-on-critical'  
+                }
+            }
+        }
+
         stage('Compile') {
             steps {
                 sh "${MAVEN_HOME}/bin/mvn clean package -DskipTests=true"
@@ -61,7 +71,7 @@ pipeline {
             steps{
                 script{
                    withDockerRegistry(credentialsId: 'dockerhub', toolName: 'docker') {
-                        sh "docker push ndadmin888/pet-clinic:latest"
+                        sh "docker push ndadmin888/${IMAGE_NAME}:latest"
                     }
                 }
             }
