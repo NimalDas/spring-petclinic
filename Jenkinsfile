@@ -53,8 +53,8 @@ pipeline {
     
         stage('Docker Build') {
             steps{
-                sh "docker build -t petclinic ."
-                sh "docker tag petclinic ndadmin888/pet-clinic:latest"  
+                sh "docker build -t ${IMAGE_NAME} ."
+                sh "docker tag petclinic ndadmin888/${IMAGE_NAME}:latest"  
             }
         }
         stage('Docker Push') {
