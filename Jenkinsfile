@@ -22,7 +22,9 @@ pipeline {
             }
         }
         stage('Clean') {
-            sh 'rm -rf spring-petclinic'
+            steps {
+                sh 'rm -rf spring-petclinic'
+            }   
         }
         stage('Checkstyle') {
             steps {
