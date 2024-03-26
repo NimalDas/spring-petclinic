@@ -2,6 +2,7 @@ pipeline {
     agent any
     
     environment {
+        PROJECT_NAME = 'petclinic'
         MAVEN_HOME = tool 'maven'
         IMAGE_NAME = 'spring-petclinic'
         DOCKER_REGISTRY = 'http:localhost:8082/artifactory'
@@ -10,6 +11,7 @@ pipeline {
         JACOCO_REPORT = 'target/site/jacoco/jacoco.xml'
         SONAR_URL = 'http:localhost:9000'
         SNYK_TOKEN = credentials('snyk-token')
+        SNYK_ORG_ID = 'b634403f-1c7a-43d3-9043-7269a4ab2e32'
     }
 
     stages {
@@ -29,7 +31,7 @@ pipeline {
             steps {
                 script {
                     sh 'snyk auth ${SNYK_TOKEN}'
-                    sh 'snyk code test --org ${ORG_ID} --project ${PROJECT_NAME} --report ${PROJECT_NAME} --fail-on-critical'  
+                    sh 'snyk code test --org ${SNYK_ORG_ID} --project ${PROJECT_NAME} --report ${PROJECT_NAME} --fail-on-critical'  
                 }
             }
         }
