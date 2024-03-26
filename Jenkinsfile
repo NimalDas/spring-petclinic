@@ -17,19 +17,18 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/NimalDas/spring-petclinic.git'
             }
         }
-
-        stage('Compile') {
-            steps {
-                sh "${MAVEN_HOME}/bin/mvn clean package -DskipTests=true"
-            }
-        }
         stage('Checkstyle') {
             steps {
                 sh "${MAVEN_HOME}/bin/mvn checkstyle:checkstyle"
                 junit allowEmptyResults: true, testResults: '**/${CHECKSTYLE_REPORT}'
             }
         }
-        
+        stage('Compile') {
+            steps {
+                sh "${MAVEN_HOME}/bin/mvn clean package -DskipTests=true"
+            }
+        }
+              
     //  stage('Unit Tests & Code Coverage') {
     //      steps {
     //          sh "${MAVEN_HOME}/bin/mvn test jacoco:report"
@@ -77,7 +76,7 @@ pipeline {
         stage('Docker Push to JF Artifactory') {
             steps {
                 script {
-                withDockerRegistry(credentialsId: "${ARTIFACTORY_ACCESS_TOKEN}", toolName: 'docker') {
+                withDockerRegistry(credentialsId: 'artifactory-token', toolName: 'docker') {
                     sh "docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:latest"
                 }
                 }
