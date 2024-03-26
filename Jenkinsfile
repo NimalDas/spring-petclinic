@@ -53,7 +53,7 @@ pipeline {
         }
 
         // Upload to artifactory
-        stage('Build Artifacts') {
+    /*stage('Build Artifacts') {
       steps {
         // Ensure successful build before uploading artifacts
         script {
@@ -65,7 +65,7 @@ pipeline {
         }
       }
     }
-
+    */
     // New stage to upload binaries to JFrog Artifactory
     stage('Upload Binaries to JFrog') {
       steps {
