@@ -84,16 +84,10 @@ pipeline {
     */
     // New stage to upload binaries to JFrog Artifactory
         stage('Upload to Artifactory') {
-            agent {
-                docker {
-                image 'releases-docker.jfrog.io/jfrog/jfrog-cli-v2:2.2.0' 
-                reuseNode true
-                }
-            }
             steps {
                 sh 'jfrog rt upload --url http://localhost:8082/artifactory/ --access-token ${ARTIFACTORY_ACCESS_TOKEN} target/*.jar petclinic/'
             }
-            }
+        }
 
     }
 }
