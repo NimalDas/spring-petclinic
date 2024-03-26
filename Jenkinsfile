@@ -4,7 +4,6 @@ pipeline {
     environment {
         MAVEN_HOME = tool 'maven'
         DOCKER_REGISTRY = 'http:localhost:8082/artifactory'
-        DOCKER_IMAGE = 'spring-petclinic'
         ARTIFACTORY_ACCESS_TOKEN = credentials('artifactory-token')
         CHECKSTYLE_REPORT = 'checkstyle-result.xml'
         JACOCO_REPORT = 'target/site/jacoco/jacoco.xml'
@@ -68,21 +67,6 @@ pipeline {
             }
         }
 
-        // Upload to artifactory
-    /*stage('Build Artifacts') {
-      steps {
-        // Ensure successful build before uploading artifacts
-        script {
-          if (currentBuild.result == 'SUCCESS') {
-            echo 'Build successful, proceeding with artifact upload...'
-          } else {
-            error 'Build failed, skipping artifact upload.'
-          }
-        }
-      }
-    }
-    */
-    // New stage to upload binaries to JFrog Artifactory
         stage('Upload to Artifactory') {
             steps {
                 sh 'jf rt upload --url http://localhost:8082/artifactory/ --access-token ${ARTIFACTORY_ACCESS_TOKEN} target/*.jar petclinic/'
