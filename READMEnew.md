@@ -38,11 +38,11 @@ To use this Jenkinsfile, place it in the root directory of your project and conf
     - Docker version 25+
 - Download the docker image
 `````
-docker pull ndadmin888/mypetclinic:latest
+docker pull ndadmin888/spring-petclinic:latest
 `````
 - Execute the container
 `````
-docker run -d --name petclinic -p 7080:8080 ndadmin888/petclinic:latest
+docker run -d --name spring-petclinic -p 7080:8080 ndadmin888/spring-petclinic:latest
 `````
     - NOTE: Update port '7080', if any other service is currently running.
 - Open browser with url: [http://localhost:7080](http://localhost:7080)
