@@ -7,7 +7,7 @@ This document, written in Markdown language, explains the Jenkins pipeline defin
 * A Jenkins server up and running
 * Docker installed on the Jenkins server (or a Docker daemon accessible)
 * JFrog Artifactory instance configured
-* A Git repository containing the Spring Petclinic source code (https://github.com/spring-petclinic/spring-framework-petclinic(https://github.com/spring-projects/spring-petclinic))
+* A Git repository containing the Spring Petclinic source code (https://github.com/spring-projects/spring-petclinic)
 * Maven installed on the Jenkins server
 * SonarQube server configured (optional)
 * Snyk account and credentials (optional)
