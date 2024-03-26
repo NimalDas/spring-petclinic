@@ -82,7 +82,7 @@ pipeline {
 
         stage('Upload to Artifactory') {
             steps {
-                sh 'jf rt upload --url ${DOCKER_REGISTRY} --access-token ${ARTIFACTORY_ACCESS_TOKEN} target/*.jar petclinic/'
+                sh 'jf rt upload --url ${DOCKER_REGISTRY}/ --access-token ${ARTIFACTORY_ACCESS_TOKEN} target/*.jar petclinic/'
             }
         }
 
