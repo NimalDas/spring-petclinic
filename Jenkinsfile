@@ -3,6 +3,7 @@ pipeline {
     
     environment {
         PROJECT_NAME = 'petclinic'
+        DOCKER_ID = 'ndadmin888'
         MAVEN_HOME = tool 'maven'
         IMAGE_NAME = 'spring-petclinic'
         DOCKER_REGISTRY = 'http:localhost:8082/artifactory'
@@ -67,14 +68,14 @@ pipeline {
         stage('Docker Build') {
             steps{
                 sh "docker build -t ${IMAGE_NAME} ."
-                sh "docker tag petclinic ndadmin888/${IMAGE_NAME}:latest"  
+                sh "docker tag ${IMAGE_NAME} ${DOCKER_ID}/${IMAGE_NAME}:latest"  
             }
         }
         stage('Docker Push') {
             steps{
                 script{
                    withDockerRegistry(credentialsId: 'dockerhub', toolName: 'docker') {
-                        sh "docker push ndadmin888/${IMAGE_NAME}:latest"
+                        sh "docker push ${DOCKER_ID}/${IMAGE_NAME}:latest"
                     }
                 }
             }
