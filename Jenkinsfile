@@ -96,8 +96,8 @@ pipeline {
             steps {
                 script {
                 withDockerRegistry(credentialsId: 'jfrog-creds', toolName: 'docker', url: 'http://localhost:8082/artifactory/' ) {  // Add the JFrog Artifactory URL here
-                    jf 'docker scan $DOCKER_IMAGE_NAME'
-                    jf 'docker push http://localhost:8082/artifactory/${IMAGE_NAME}:latest'
+                    //sh 'docker scan $DOCKER_IMAGE_NAME'
+                    sh 'jf docker push http://localhost:8082/artifactory/${IMAGE_NAME}:latest'
                 }
                 }
             }
