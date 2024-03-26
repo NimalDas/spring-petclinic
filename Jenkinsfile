@@ -3,7 +3,7 @@ pipeline {
     
     environment {
         MAVEN_HOME = tool 'maven'
-        DOCKER_REGISTRY = 'your-jfrog-url'
+        DOCKER_REGISTRY = 'http:localhost:8082/artifactory'
         DOCKER_IMAGE = 'spring-petclinic'
         JFROG_REPO = 'your-jfrog-repo'
         CHECKSTYLE_REPORT = 'checkstyle-result.xml'
@@ -51,6 +51,47 @@ pipeline {
                 }
             }
         }
+
+        // Upload to artifactory
+        stage('Build Artifacts') {
+      steps {
+        // Ensure successful build before uploading artifacts
+        script {
+          if (currentBuild.result == 'SUCCESS') {
+            echo 'Build successful, proceeding with artifact upload...'
+          } else {
+            error 'Build failed, skipping artifact upload.'
+          }
+        }
+      }
+    }
+
+    // New stage to upload binaries to JFrog Artifactory
+    stage('Upload Binaries to JFrog') {
+      steps {
+        // Use JFrog CLI command to upload artifacts
+        sh """
+          jfrog rt u target/*.jar ${JFROG_REPO} \
+             --url=${DOCKER_REGISTRY} \
+             --user=${JFROG_USERNAME} \
+             --password=${JFROG_PASSWORD}
+        """
+
+        // Replace placeholders with actual values:
+        // - path/to/your/artifacts: Path to your JAR files (e.g., target/*.jar)
+        // - DOCKER_REGISTRY: URL of your JFrog server
+        // - JPROG_USERNAME: Username for JFrog access
+        // - JPROG_PASSWORD: Password for JFrog access
+
+        // Handle upload result
+        if (shExitCode == 0) {
+          echo 'Binaries uploaded successfully!'
+        } else {
+          error 'Failed to upload binaries!'
+        }
+      }
+    }
+
         
         stage('Docker Build') {
             steps{
