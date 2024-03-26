@@ -6,11 +6,11 @@ pipeline {
         DOCKER_ID = 'ndadmin888'
         MAVEN_HOME = tool 'maven'
         IMAGE_NAME = 'spring-petclinic'
-        DOCKER_REGISTRY = 'http:localhost:8082/artifactory'
+        DOCKER_REGISTRY = 'http://localhost:8082/artifactory'
         ARTIFACTORY_ACCESS_TOKEN = credentials('artifactory-token')
         CHECKSTYLE_REPORT = 'checkstyle-result.xml'
         JACOCO_REPORT = 'target/site/jacoco/jacoco.xml'
-        SONAR_URL = 'http:localhost:9000'
+        SONAR_URL = 'http://localhost:9000'
         SNYK_TOKEN = credentials('snyk-token')
         SNYK_ORG_ID = 'b634403f-1c7a-43d3-9043-7269a4ab2e32'
     }
@@ -48,13 +48,13 @@ pipeline {
             }
         }
               
-    //  stage('Unit Tests & Code Coverage') {
-    //      steps {
-    //          sh "${MAVEN_HOME}/bin/mvn test jacoco:report"
-    //          junit allowEmptyResults: true, testResults: '**/surefire-reports/*.xml'
-    //          jacoco(execPattern: 'target/**/*.exec', classPattern: '**/target/classes', sourcePattern: '**/src/main/java')
-    //      }
-    //  }
+      stage('Unit Tests & Code Coverage') {
+          steps {
+              sh "${MAVEN_HOME}/bin/mvn test jacoco:report"
+              junit allowEmptyResults: true, testResults: '**/surefire-reports/*.xml'
+              jacoco(execPattern: 'target/**/*.exec', classPattern: '**/target/classes', sourcePattern: '**/src/main/java')
+          }
+      }
         stage('Code Coverage') {
             steps {
                 step([$class: 'JacocoPublisher']) // JaCoCo report generation
