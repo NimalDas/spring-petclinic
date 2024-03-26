@@ -1,6 +1,6 @@
-## spring-petclinic Jenkins Pipeline (README.md)
+## Spring-Petclinic Jenkins Pipeline
 
-This document, written in Markdown language, explains the Jenkins pipeline defined in the `Jenkinsfile` for the Spring Petclinic application. The pipeline automates various tasks related to building, testing, deploying, and securing the application.
+This document, explains the Jenkins pipeline defined in the `Jenkinsfile` for the Spring Petclinic application. The pipeline automates various tasks related to building, testing, deploying, and securing the application.
 
 **Prerequisites:**
 
@@ -34,13 +34,13 @@ The Jenkinsfile uses several environment variables to configure the build proces
 The pipeline is divided into several stages:
 
 1. **Clone Git repository:** Clones the Spring Petclinic source code from a Git repository.
-2. **Clean (optional):** Deletes any existing Spring Petclinic directory to ensure a clean build.
+2. **Clean:** Deletes any existing Spring Petclinic directory to ensure a clean build.
 3. **Checkstyle:** Runs Checkstyle code analysis to identify potential style violations.
-4. **SAST Scan with Snyk Code (optional):** Performs a security scan using Snyk to detect vulnerabilities in the code. (Currently commented out)
+4. **SAST Scan with Snyk Code:** Performs a security scan using Snyk to detect vulnerabilities in the code. 
 5. **Compile:** Compiles the source code without running tests.
-6. **Unit Tests & Code Coverage (optional):** Runs unit tests and generates a JaCoCo code coverage report. (Currently commented out)
+6. **Unit Tests & Code Coverage:** Runs unit tests and generates a JaCoCo code coverage report. 
 7. **Code Coverage:** Uses the JaCoCo plugin to publish code coverage reports.
-8. **SonarQube Analysis (optional):** Performs code quality analysis using SonarQube.
+8. **SonarQube Analysis:** Performs code quality analysis using SonarQube.
 9. **Docker Build:** Builds a Docker image for the Spring Petclinic application.
 10. **Docker Push:** Pushes the Docker image to a Docker registry (Docker Hub or JFrog Artifactory).
 11. **Upload to maven artifacts to JF Artifactory:** Uploads the generated JAR file to JFrog Artifactory.
@@ -73,7 +73,7 @@ docker run -d --name spring-petclinic -p 7080:8080 ndadmin888/spring-petclinic:l
 
 **Additional Notes:**
 
-* The pipeline uses credentials for accessing JFrog Artifactory, Docker Hub (if applicable), and SonarQube (if applicable). Configure these credentials in Jenkins.
+* The pipeline uses credentials for accessing JFrog Artifactory, Docker Hub, and SonarQube. Configure these credentials in Jenkins.
 * You can comment out or uncomment stages based on your requirements.
 
 
