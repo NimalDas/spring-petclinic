@@ -30,3 +30,21 @@ The pipeline includes the following stages:
 ## Usage
 
 To use this Jenkinsfile, place it in the root directory of your project and configure a Jenkins job to use it. You may need to adjust the environment variables and stage steps to match your specific environment and requirements.
+
+### Docker image execution
+
+- Prerequisite
+    - Device operating system: Mac, Linux, or Windows
+    - Docker version 25+
+- Download the docker image
+`````
+docker pull ndadmin888/mypetclinic:latest
+`````
+- Execute the container
+`````
+docker run -d --name mypetclinic -p 7080:8080 ndadmin888/mypetclinic:latest
+`````
+    - NOTE: Update port '7080', if any other service is currently running.
+- Open browser with url: [http://localhost:7080](http://localhost:7080)
+- Stop the container
+`````
