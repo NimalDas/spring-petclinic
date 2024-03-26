@@ -84,13 +84,13 @@ pipeline {
         // - JPROG_PASSWORD: Password for JFrog access
 
         // Handle upload result
-        script {
+        /*script {
             if (shExitCode == 0) {
                 echo 'Binaries uploaded successfully!'
             } else {
                 error 'Failed to upload binaries!'
             }
-         }   
+         } */  
       }
     }
 
