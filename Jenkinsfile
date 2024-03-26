@@ -21,6 +21,9 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/NimalDas/spring-petclinic.git'
             }
         }
+        stage('Clean') {
+            sh 'rm -rf spring-petclinic'
+        }
         stage('Checkstyle') {
             steps {
                 sh "${MAVEN_HOME}/bin/mvn checkstyle:checkstyle"

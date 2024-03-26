@@ -1,140 +1,80 @@
-# Spring PetClinic Sample Application 
+## spring-petclinic Jenkins Pipeline (README.md)
 
-## Prerequisites
-- Original PetClinic application documentation: [ReadME.MD](readme-original.md)
+This document, written in Markdown language, explains the Jenkins pipeline defined in the `Jenkinsfile` for the Spring Petclinic application. The pipeline automates various tasks related to building, testing, deploying, and securing the application.
 
-## Objective
-Develop a DevOps pipeline to automate tasks such as code compile, unit testing, creation of container, and upload of artifacts to a JFrog repository. This will streamline the software development process.
+**Prerequisites:**
 
-### Changelog
-- The original 'readme.md' file has been renamed to 'readme-orignial.md'.
-- Add new files
-    - README.md
-    - Dockerfile
-    - Jenkinsfile
+* A Jenkins server up and running
+* Docker installed on the Jenkins server (or a Docker daemon accessible)
+* JFrog Artifactory instance configured
+* A Git repository containing the Spring Petclinic source code (https://github.com/spring-petclinic/spring-framework-petclinic(https://github.com/spring-projects/spring-petclinic))
+* Maven installed on the Jenkins server
+* SonarQube server configured (optional)
+* Snyk account and credentials (optional)
+* Docker Hub account and credentials (optional)
 
-## DevOps steps
-### Assumption
-My assumption is that the user has the necessary infrastucture in place, including Java v17+, Maven v3.8+, Docker v25+, and a Jenkins v2.445+ server, to implement an automated pipeline for the PetClinic application.
+**Environment Variables:**
 
+The Jenkinsfile uses several environment variables to configure the build process. You'll need to define these variables in your Jenkins configuration for the pipeline to work correctly.
 
-The Jenkins pipeline script performs the following stages:
-#### Stage: Code
-The stage 'Code' contains the following sequential sub-stages:
-##### clean
-This sub-stage remove any exisiting petclinc directory
-`````
-rm -rf spring-petclinic
-`````
-##### clone
-This sub-stage clones the GitHub repository
-`````
-git branch: 'main', url: 'https://github.com/nimaldas/spring-petclinic.git'
-`````
-##### compile
-This sub-stage compiles and skips tests the project using Apache Maven
-`````
-mvn clean install -DskipTests=true
-`````
-#### Stage: Tests
-The stage 'Tests' contains parallel sub-stages:
-##### unitTest
-This sub-stage runs unit tests using Apache Maven command and generates a surefire html report at the ${project}/${buildNumber}/target/site/surefire-report.html. Note: If the execution is not completed within ten (10) minutes, the stage is failed.
-`````
-mvn test surefire-report:report
-`````
-##### checkStyle
-This sub-stage runs the Checkstyle checks using Apache Maven command and generates a checkstyle html report at the ${project}/${buildNumber}/target/site/checkstyle.html. Note: If the execution is not completed within two (2) minutes, the stage is failed.
-`````
-mvn checkstyle:checkstyle
-`````
-##### codeCoverage
-This sub-stage generates Jacoco code coverage reports using Apache Maven command and generates a Jacoco html report at the ${project}/${buildNumber}/target/site/jacoco/index.html. Note: If the execution is not completed within two (2)  minutes, the stage is failed.
-`````
-mvn jacoco:report
-`````
-#### Stage: Container
-The stage 'Docker' contains the following sub-stages:
-##### build
-This sub-stage builds the Docker image using the Dockerfile. The image is tagged with the project name and the Jenkins build ID.
-`````
-docker image build -f Dockerfile -t mypetclinic:${env.BUILD_ID} .
-`````
-##### tag
-This sub-stage lists Docker containers and images, tags the built image with project name and latest tags, and tags the built image with the project name and build ID.
-`````
-docker tag mypetclinic:${env.BUILD_ID} ndadmin888/mypetclinic:${env.BUILD_ID}
-docker tag mypetclinic:${env.BUILD_ID} ndadmin888/mypetclinic:latest
-`````
-##### publish
-This sub-stage pushes the Docker images to the Docker registry using Docker login credentials stored in Jenkins credentials. It pushes both the latest and build ID tagged images.
-`````
-docker push ndadmin888/mypetclinic:${env.BUILD_ID}
-docker push ndadmin888/mypetclinic:latest
-`````
-##### clean
-This sub-stage performs cleanup tasks such as pruning unused Docker images and containers, and removing the built image from the local system.
-`````
-docker system prune -f --filter until=1h
-docker rmi -f mypetclinic
-`````
+* `PROJECT_NAME`: Name of your project (default: 'petclinic')
+* `DOCKER_ID`: Your Docker Hub username (if pushing to Docker Hub)
+* `MAVEN_HOME`: Path to the Maven installation on the Jenkins server (e.g., '/usr/local/maven')
+* `IMAGE_NAME`: Name of the Docker image to build (default: 'spring-petclinic')
+* `DOCKER_REGISTRY`: URL of your Docker registry (e.g., 'http://localhost:8082/artifactory')
+* `ARTIFACTORY_ACCESS_TOKEN`: Access token for JFrog Artifactory
+* `CHECKSTYLE_REPORT`: Name of the Checkstyle report file (default: 'checkstyle-result.xml')
+* `JACOCO_REPORT`: Name of the JaCoCo code coverage report file (default: 'target/site/jacoco/jacoco.xml')
+* `SONAR_URL`: URL of your SonarQube server (default: 'http://localhost:9000') (optional)
+* `SNYK_TOKEN`: Snyk API token (optional)
+* `SNYK_ORG_ID`: Snyk organization ID (optional)
 
-## Repository
-- The container images from the Jenkin pipeline was uploaded to the [Docker repository](https://hub.docker.com/repositories/ndadmin888)
+**Pipeline Stages:**
 
-## Docker image execution
-A few options are available to execute the Docker image [ndadmin888/mypetclinic:latest](https://hub.docker.com/r/krishnamanchikalapudi/mypetclinic/tags)
-### Option 1
-- Prerequisite
-    - Device operating system: Mac or Linux
-    - Docker version 25+
-- Download [mypetclinic.sh](https://github.com/nimaldas/spring-petclinic/blob/main/mypetclinic.sh) from the GitHub repo# [https://github.com/ndadmin888/spring-petclinic](https://github.com/krishnamanchikalapudi/spring-petclinic)
-- Execute the script with argument
-`````
-./mypetclinic.sh start
-`````
-- Stop the image
-`````
-./mypetclinic.sh stop
-`````
-### Option 2
+The pipeline is divided into several stages:
+
+1. **Clone Git repository:** Clones the Spring Petclinic source code from a Git repository.
+2. **Clean (optional):** Deletes any existing Spring Petclinic directory to ensure a clean build.
+3. **Checkstyle:** Runs Checkstyle code analysis to identify potential style violations.
+4. **SAST Scan with Snyk Code (optional):** Performs a security scan using Snyk to detect vulnerabilities in the code. (Currently commented out)
+5. **Compile:** Compiles the source code without running tests.
+6. **Unit Tests & Code Coverage (optional):** Runs unit tests and generates a JaCoCo code coverage report. (Currently commented out)
+7. **Code Coverage:** Uses the JaCoCo plugin to publish code coverage reports.
+8. **SonarQube Analysis (optional):** Performs code quality analysis using SonarQube.
+9. **Docker Build:** Builds a Docker image for the Spring Petclinic application.
+10. **Docker Push:** Pushes the Docker image to a Docker registry (Docker Hub or JFrog Artifactory).
+11. **Upload to maven artifacts to JF Artifactory:** Uploads the generated JAR file to JFrog Artifactory.
+12. **Upload docker image to JF Artifactory:** Scans and pushes the Docker image to JFrog Artifactory.
+
+**Running the Pipeline:**
+
+1. Save the `Jenkinsfile` content in your Jenkins project workspace.
+2. Configure the environment variables mentioned above in your Jenkins job configuration.
+3. Make any necessary modifications to the pipeline stages based on your specific needs (e.g., enabling/disabling stages, adjusting credentials).
+4. Run the Jenkins job to trigger the pipeline execution.
+
+***Docker image execution*** 
+
 - Prerequisite
     - Device operating system: Mac, Linux, or Windows
     - Docker version 25+
 - Download the docker image
 `````
-docker pull ndadmin888/mypetclinic:latest
+docker pull ndadmin888/spring-petclinic:latest
 `````
 - Execute the container
 `````
-docker run -d --name mypetclinic -p 7080:8080 ndadmin888/mypetclinic:latest
+docker run -d --name spring-petclinic -p 7080:8080 ndadmin888/spring-petclinic:latest
 `````
     - NOTE: Update port '7080', if any other service is currently running.
 - Open browser with url: [http://localhost:7080](http://localhost:7080)
 - Stop the container
 `````
-docker stop $(docker ps -q --filter ancestor=mypetclinic)
-docker ps --filter name=mypetclinic --filter status=running -aq | xargs docker stop
-`````
 
-## Jenkins Setup
-### Prerequisite
-- Follow instruction to secure [DockerHub token] at the [Jenkins credentials](https://www.jenkins.io/doc/book/using/using-credentials/) 
-### New project 
-- Follow instructions to setup new project using [Jenkinsfile with SCM](https://www.jenkins.io/doc/book/pipeline/jenkinsfile/)
+**Additional Notes:**
 
-## Learnings
-### Access issue on my device
-#### error
-The Jenkins pipeline stage docker/build throws an error when it tries to make mypetclinic image as below.
-`````
-ERROR: permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Get "%2Fvar%2Frun%2Fdocker.sock/_ping": dial unix /var/run/docker.sock: connect: permission denied
-`````
-#### solution
-My device is running with user 'ubuntu' and Jenkins service is running with the user 'jenkins'. Therefore, I need to grant the user 'jenkins' access to docker.sock and command follows
-`````
-sudo setfacl -R -m user:jenkins:rwx /var/run/docker.sock
-`````
+* The pipeline uses credentials for accessing JFrog Artifactory, Docker Hub (if applicable), and SonarQube (if applicable). Configure these credentials in Jenkins.
+* You can comment out or uncomment stages based on your requirements.
 
-## License
-The Spring PetClinic sample application is released under version 2.0 of the [Apache License](https://www.apache.org/licenses/LICENSE-2.0).
+
+
