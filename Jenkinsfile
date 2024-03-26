@@ -76,7 +76,7 @@ pipeline {
         stage('Docker Push to JF Artifactory') {
             steps {
                 script {
-                withDockerRegistry(credentialsId: 'artifactory-token', toolName: 'docker') {
+                withDockerRegistry(credentialsId: 'jfrog-password', toolName: 'docker') {
                     sh "docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:latest"
                 }
                 }
