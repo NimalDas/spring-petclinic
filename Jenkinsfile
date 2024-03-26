@@ -82,15 +82,15 @@ pipeline {
 
         stage('Upload to Artifactory') {
             steps {
-                sh 'jf rt upload --url http://localhost:8082/artifactory/ --access-token ${ARTIFACTORY_ACCESS_TOKEN} target/*.jar petclinic/'
+                sh 'jf rt upload --url ${DOCKER_REGISTRY} --access-token ${ARTIFACTORY_ACCESS_TOKEN} target/*.jar petclinic/'
             }
         }
 
         stage('Docker Push to JF Artifactory') {
             steps {
                 script {
-                withDockerRegistry(credentialsId: 'jfrog-creds', toolName: 'docker', url: 'http://localhost:8082/artifactory') {  // Add the JFrog Artifactory URL here
-                    sh "docker push ${IMAGE_NAME}:latest"
+                withDockerRegistry(credentialsId: 'jfrog-creds', toolName: 'docker', url: '${DOCKER_REGISTRY}' ) {  // Add the JFrog Artifactory URL here
+                    sh "docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:latest"
                 }
                 }
             }
