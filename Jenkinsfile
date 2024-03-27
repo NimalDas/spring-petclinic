@@ -13,6 +13,7 @@ pipeline {
         SONAR_URL = 'http://localhost:9000'
         SNYK_TOKEN = credentials('snyk-token')
         SNYK_ORG_ID = 'b634403f-1c7a-43d3-9043-7269a4ab2e32'
+        CI = true
     }
 
     stages {
@@ -33,14 +34,23 @@ pipeline {
             }
         }
 
-       stage('SAST Scan with Snyk Code') {
-           steps {
-               script {
-                   sh 'snyk auth ${SNYK_TOKEN}'
-                   sh 'snyk test --org=${SNYK_ORG_ID} --report --project-name="petclinic"'  
-               }
-           }
-       }
+      //stage('SAST Scan with Snyk') {
+      //    steps {
+      //        script {
+      //            sh 'snyk auth ${SNYK_TOKEN}'
+      //            sh 'snyk code test --org=${SNYK_ORG_ID} --report --project-name="petclinic"'  
+      //        }
+      //    }
+      //}
+//
+      //stage('SCA with Snyk') {
+      //    steps {
+      //        script {
+      //            sh 'snyk auth ${SNYK_TOKEN}'
+      //            sh 'snyk test --org=${SNYK_ORG_ID} --json-file-output=sca-report.json'  
+      //        }
+      //    }
+      //}
 
         stage('Compile') {
             steps {
@@ -48,16 +58,16 @@ pipeline {
             }
         }
               
-     //stage('Unit Tests & Code Coverage') {
-     //    steps {
-     //        sh "${MAVEN_HOME}/bin/mvn test jacoco:report"
-     //        junit allowEmptyResults: true, testResults: '**/surefire-reports/*.xml'
-     //        jacoco(execPattern: 'target/**/*.exec', classPattern: '**/target/classes', sourcePattern: '**/src/main/java')
-     //    }
-     //}
+       //stage('Unit Tests & Code Coverage') {
+       //    steps {
+       //        sh "${MAVEN_HOME}/bin/mvn test jacoco:report"
+       //        junit allowEmptyResults: true, testResults: '**/surefire-reports/*.xml'
+       //        jacoco(execPattern: 'target/**/*.exec', classPattern: '**/target/classes', sourcePattern: '**/src/main/java')
+       //    }
+       //}
         stage('Code Coverage') {
             steps {
-                step([$class: 'JacocoPublisher']) // JaCoCo report generation
+                step([$class: 'JacocoPublisher']) 
             }
         }
         stage('SonarQube Analysis') {
@@ -76,15 +86,6 @@ pipeline {
                 sh "docker tag ${IMAGE_NAME} ${DOCKER_ID}/${IMAGE_NAME}:latest"  
             }
         }
-        stage('Upload to Dockerhub') {
-            steps{
-                script{
-                   withDockerRegistry(credentialsId: 'dockerhub', toolName: 'docker') {
-                        sh "docker push ${DOCKER_ID}/${IMAGE_NAME}:latest"
-                    }
-                }
-            }
-        }
 
         stage('Upload to maven artifacts to JF Artifactory') {
             steps {
@@ -96,9 +97,18 @@ pipeline {
             steps {
                 script {
                 withDockerRegistry(credentialsId: 'jfrog-creds', toolName: 'docker', url: 'http://localhost:8082/artifactory/' ) {  // Add the JFrog Artifactory URL here
-                    //sh 'docker scan $DOCKER_IMAGE_NAME'
+                    sh 'jf docker scan $DOCKER_IMAGE_NAME'
                     sh 'jf docker push http://localhost:8082/artifactory/${IMAGE_NAME}:latest'
+                    }
                 }
+            }
+        }
+        stage('Upload to Dockerhub') {
+            steps{
+                script{
+                   withDockerRegistry(credentialsId: 'dockerhub', toolName: 'docker') {
+                        sh "docker push ${DOCKER_ID}/${IMAGE_NAME}:latest"
+                    }
                 }
             }
         }
