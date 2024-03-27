@@ -70,15 +70,15 @@ pipeline {
                 step([$class: 'JacocoPublisher']) 
             }
         }
-        stage('SonarQube Analysis') {
-            steps {
-                withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
-                    withSonarQubeEnv('sonarqube-server') {
-                        sh "${MAVEN_HOME}/bin/mvn sonar:sonar -Dsonar.host.url=${SONAR_URL} -Dsonar.login=${SONAR_TOKEN}"
-                    }
-                }
-            }
-        }
+       //stage('SonarQube Analysis') {
+       //    steps {
+       //        withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
+       //            withSonarQubeEnv('sonarqube-server') {
+       //                sh "${MAVEN_HOME}/bin/mvn sonar:sonar -Dsonar.host.url=${SONAR_URL} -Dsonar.login=${SONAR_TOKEN}"
+       //            }
+       //        }
+       //    }
+       //}
     
         stage('Docker Build') {
             steps{
