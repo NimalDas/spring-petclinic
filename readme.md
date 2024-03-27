@@ -37,6 +37,7 @@ The pipeline is divided into several stages, each performing a specific task in 
 2. **Clean:** Removes any existing Spring Petclinic directory from the Jenkins workspace to ensure a clean build environment.
 3. **Checkstyle:** Runs Checkstyle, a static code analysis tool, to identify potential coding style violations in the project's source code. This helps maintain code consistency and readability.
 4. **SAST Scan with Snyk Code:** Performs a security scan using Snyk to detect vulnerabilities in the code. This helps identify and address potential security risks before deployment.
+5. **SCA Scan with Snyk**: 
 5. **Compile:** Compiles the Spring Petclinic source code into a JAR (Java Archive) file using Maven, a build automation tool for Java projects. This stage doesn't run any tests.
 6. **Unit Tests & Code Coverage:** Executes the unit tests for the Spring Petclinic application using Maven. Additionally, it generates a JaCoCo code coverage report that shows which parts of the code are exercised by the tests. This helps ensure the quality and reliability of the application. 
 7. **Code Coverage:** Uses the JaCoCo plugin within Jenkins to publish the generated code coverage reports. This provides insights into the effectiveness of your unit tests.
