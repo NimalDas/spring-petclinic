@@ -80,5 +80,5 @@ docker run -d --name spring-petclinic -p 7080:8080 ndadmin888/spring-petclinic:l
 
 **Additional Notes:**
 
-* The pipeline uses credentials for accessing JFrog Artifactory, Docker Hub, and SonarQube. Configure these credentials in Jenkins.
+* The pipeline uses credentials for accessing JFrog Artifactory, Docker Hub, Snyk and SonarQube. Configure these credentials in Jenkins.
 * You can comment out or uncomment stages based on your requirements.
