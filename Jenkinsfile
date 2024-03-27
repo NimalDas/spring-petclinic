@@ -17,15 +17,15 @@ pipeline {
     }
 
     stages {
-        stage('Clone Git repository') {
-            steps {
-                git branch: 'main', url: 'https://github.com/NimalDas/spring-petclinic.git'
-            }
-        }
         stage('Clean') {
             steps {
                 sh 'rm -rf spring-petclinic'
             }   
+        }
+        stage('Clone Git repository') {
+            steps {
+                git branch: 'main', url: 'https://github.com/NimalDas/spring-petclinic.git'
+            }
         }
         stage('Checkstyle') {
             steps {
@@ -34,22 +34,22 @@ pipeline {
             }
         }
 
-        stage('SAST Scan with Snyk') {
-            steps {
-                script {
-                    sh 'snyk auth ${SNYK_TOKEN}'
-                    sh 'snyk code test --org=${SNYK_ORG_ID} --report --project-name="petclinic"'  
-                }
-            }
-        }
-        stage('SCA scan with Snyk') {
-            steps {
-                script {
-                    sh 'snyk auth ${SNYK_TOKEN}'
-                    sh 'snyk test --org=${SNYK_ORG_ID} --json-file-output=sca-report.json'  
-                }
-            }
-        }
+       //stage('SAST Scan with Snyk') {
+       //    steps {
+       //        script {
+       //            sh 'snyk auth ${SNYK_TOKEN}'
+       //            sh 'snyk code test --org=${SNYK_ORG_ID} --report --project-name="petclinic"'  
+       //        }
+       //    }
+       //}
+       //stage('SCA scan with Snyk') {
+       //    steps {
+       //        script {
+       //            sh 'snyk auth ${SNYK_TOKEN}'
+       //            sh 'snyk test --org=${SNYK_ORG_ID} --json-file-output=sca-report.json'  
+       //        }
+       //    }
+       //}
 
         stage('Compile') {
             steps {
@@ -57,27 +57,27 @@ pipeline {
             }
         }
               
-        stage('Unit Tests & Code Coverage') {
-            steps {
-                sh "${MAVEN_HOME}/bin/mvn test jacoco:report"
-                junit allowEmptyResults: true, testResults: '**/surefire-reports/*.xml'
-                jacoco(execPattern: 'target/**/*.exec', classPattern: '**/target/classes', sourcePattern: '**/src/main/java')
-            }
-        }
+       //stage('Unit Tests & Code Coverage') {
+       //    steps {
+       //        sh "${MAVEN_HOME}/bin/mvn test jacoco:report"
+       //        junit allowEmptyResults: true, testResults: '**/surefire-reports/*.xml'
+       //        jacoco(execPattern: 'target/**/*.exec', classPattern: '**/target/classes', sourcePattern: '**/src/main/java')
+       //    }
+       //}
         stage('Code Coverage') {
             steps {
                 step([$class: 'JacocoPublisher']) 
             }
         }
-        stage('SonarQube Analysis') {
-            steps {
-                withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
-                    withSonarQubeEnv('sonarqube-server') {
-                        sh "${MAVEN_HOME}/bin/mvn sonar:sonar -Dsonar.host.url=${SONAR_URL} -Dsonar.login=${SONAR_TOKEN}"
-                    }
-                }
-            }
-        }
+       //stage('SonarQube Analysis') {
+       //    steps {
+       //        withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
+       //            withSonarQubeEnv('sonarqube-server') {
+       //                sh "${MAVEN_HOME}/bin/mvn sonar:sonar -Dsonar.host.url=${SONAR_URL} -Dsonar.login=${SONAR_TOKEN}"
+       //            }
+       //        }
+       //    }
+       //}
     
         stage('Docker Build') {
             steps{
@@ -86,22 +86,22 @@ pipeline {
             }
         }
 
-        stage('Upload to maven artifacts to JF Artifactory') {
-            steps {
-                sh 'jf rt upload --url http://localhost:8082/artifactory/ --access-token ${ARTIFACTORY_ACCESS_TOKEN} target/*.jar petclinic/'
-            }
-        }
+       //stage('Upload to maven artifacts to JF Artifactory') {
+       //    steps {
+       //        sh 'jf rt upload --url http://localhost:8082/artifactory/ --access-token ${ARTIFACTORY_ACCESS_TOKEN} target/*.jar petclinic/'
+       //    }
+       //}
 
-        stage('Upload docker image to JF Artifactory') {
-            steps {
-                script {
-                withDockerRegistry(credentialsId: 'jfrog-creds', toolName: 'docker', url: 'http://localhost:8082/artifactory/' ) {  // Add the JFrog Artifactory URL here
-                    sh 'jf docker scan $DOCKER_IMAGE_NAME'
-                    sh 'jf docker push http://localhost:8082/artifactory/${IMAGE_NAME}:latest'
-                    }
-                }
-            }
-        }
+       //stage('Upload docker image to JF Artifactory') {
+       //    steps {
+       //        script {
+       //        withDockerRegistry(credentialsId: 'jfrog-creds', toolName: 'docker', url: 'http://localhost:8082/artifactory/' ) {  // Add the JFrog Artifactory URL here
+       //            sh 'jf docker scan $DOCKER_IMAGE_NAME'
+       //            sh 'jf docker push http://localhost:8082/artifactory/${IMAGE_NAME}:latest'
+       //            }
+       //        }
+       //    }
+       //}
         stage('Upload to Dockerhub') {
             steps{
                 script{

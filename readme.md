@@ -38,8 +38,8 @@ The Jenkinsfile uses several environment variables to configure the build proces
 
 The pipeline is divided into several stages, each performing a specific task in the build and deployment process:
 
-1. **Clone Git repository:** Downloads the latest codebase of the Spring Petclinic application from the specified Git repository.
-2. **Clean:** Removes any existing Spring Petclinic directory from the Jenkins workspace to ensure a clean build environment.
+1. **Clean:** Removes any existing Spring Petclinic directory from the Jenkins workspace to ensure a clean build environment.
+2. **Clone Git repository:** Downloads the latest codebase of the Spring Petclinic application from the specified Git repository.
 3. **Checkstyle:** Runs Checkstyle, a static code analysis tool, to identify potential coding style violations in the project's source code. This helps maintain code consistency and readability.
 4. **SAST Scan with Snyk Code:** Performs a security scan using Snyk to detect vulnerabilities in the code. This helps identify and address potential security risks before deployment.
 5. **SCA Scan with Snyk**: Analyzes open-source dependencies for vulnerabilities.
