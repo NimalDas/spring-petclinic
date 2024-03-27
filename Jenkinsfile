@@ -42,7 +42,7 @@ pipeline {
                 }
             }
         }
-//          stage('SCA scan with Snyk') {
+        stage('SCA scan with Snyk') {
             steps {
                 script {
                     sh 'snyk auth ${SNYK_TOKEN}'
