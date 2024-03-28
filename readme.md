@@ -1,10 +1,10 @@
 ## Spring-Petclinic Jenkins Pipeline
 
-This document, explains the Jenkins pipeline defined in the `Jenkinsfile` for the Spring Petclinic application. The pipeline automates various tasks related to building, testing, deploying, and securing the application.
+This document, explains the Jenkins pipeline defined in the `Jenkinsfile` for the Spring Petclinic application. The pipeline automates various tasks related to building, testing, packaging, and securing the application.
 
 * Building and testing the application
 * Analyzing code quality and security
-* Packaging and deploying the application
+* Packaging the application
 
 **Prerequisites:**
 
@@ -30,7 +30,7 @@ The Jenkinsfile uses several environment variables to configure the build proces
 * `ARTIFACTORY_ACCESS_TOKEN`: Access token for JFrog Artifactory
 * `CHECKSTYLE_REPORT`: Name of the Checkstyle report file (default: 'checkstyle-result.xml')
 * `JACOCO_REPORT`: Name of the JaCoCo code coverage report file (default: 'target/site/jacoco/jacoco.xml')
-* `SONAR_URL`: URL of your SonarQube server (default: 'http://localhost:9000') (optional)
+* `SONAR_URL`: URL of your SonarQube server (default: 'http://localhost:9000')
 * `SNYK_TOKEN`: Snyk API token (optional)
 * `SNYK_ORG_ID`: Snyk organization ID (optional)
 
@@ -40,15 +40,15 @@ The pipeline is divided into several stages, each performing a specific task in 
 
 1. **Clean:** Removes any existing Spring Petclinic directory from the Jenkins workspace to ensure a clean build environment.
 2. **Clone Git repository:** Downloads the latest codebase of the Spring Petclinic application from the specified Git repository.
-3. **Checkstyle:** Runs Checkstyle, a static code analysis tool, to identify potential coding style violations in the project's source code. This helps maintain code consistency and readability.
-4. **SAST Scan with Snyk Code:** Performs a security scan using Snyk to detect vulnerabilities in the code. This helps identify and address potential security risks before deployment.
-5. **SCA Scan with Snyk**: Analyzes open-source dependencies for vulnerabilities.
+3. **Checkstyle:** Runs Checkstyle, a development tool, to identify potential coding style violations in the project's source code. It can find class design problems, method design problems. It also has the ability to check code layout and formatting issues.
+4. **SAST Scan with Snyk Code:** Performs a security scan using Snyk to detect vulnerabilities in the code. This helps identify and address potential security risks before build stage.
+5. **SCA Scan with Snyk**: Analyzes open-source dependencies for vulnerabilities. Using SCA, development teams can quickly track and analyze any open-source component brought into a project. SCA scan can discover all related components, their supporting libraries, and their direct and indirect dependencies. SCA scan can also detect software licenses, deprecated dependencies, as well as vulnerabilities and potential exploits.
 6. **Compile:** Compiles the Spring Petclinic source code into a JAR (Java Archive) file using Maven, a build automation tool for Java projects. This stage doesn't run any tests.
 7. **Unit Tests & Code Coverage:** Executes the unit tests for the Spring Petclinic application using Maven. Additionally, it generates a JaCoCo code coverage report that shows which parts of the code are exercised by the tests. This helps ensure the quality and reliability of the application. 
 8. **Code Coverage:** Uses the JaCoCo plugin within Jenkins to publish the generated code coverage reports. This provides insights into the effectiveness of your unit tests.
 9. **SonarQube Analysis:** Performs a code quality analysis using SonarQube, a platform for continuous inspection and improvement of code. This stage is optional and requires a SonarQube server to be configured.
 10. **Docker Build:** Creates a Docker image for the Spring Petclinic application. This image can be used to package and deploy the application in a consistent and portable manner.
-11. **Upload to maven artifacts to JF Artifactory:** Uploads the generated JAR file to JFrog Artifactory, a repository manager for storing and distributing software artifacts.
+11. **Upload maven artifacts to JF Artifactory:** Uploads the generated JAR file to JFrog Artifactory, a repository manager for storing and distributing software artifacts.
 12. **Upload docker image to JF Artifactory:** Scans and pushes the Docker image to JFrog Artifactory, providing a central location for managing Docker images.
 13. **Upload to Dockerhub:** Pushes the newly built Docker image to a Docker registry, such as Docker Hub. This allows you to store and share the image for easy deployment.
 
